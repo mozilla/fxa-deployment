@@ -1,0 +1,9 @@
+# An AMI for the webhead cluster boxes.
+Type: AWSBoxen::BuildScript
+Properties:
+  BaseAMI: {"Fn::FindInMap": ["RegionMap", {"Ref": "AWS::Region"}, "BaseAMI"]}
+  BuildScripts:
+    - buildscripts/common.sh
+    - buildscripts/common_heka_client.sh
+    - buildscripts/common_nginx.sh
+    - buildscripts/build_idp_box.sh

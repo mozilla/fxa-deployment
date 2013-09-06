@@ -1,0 +1,4 @@
+*.swp
+secret*
+*.gpg
+/node_modules
