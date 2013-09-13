@@ -18,7 +18,7 @@ cat >> /home/app/hekad/hekad.toml << EOF
 [aggregator-output]
 type = "AMQPOutput"
 message_matcher = "TRUE"
-url = "amqp://guest:guest@logs.{"Ref":"DNSPrefix"}.lcip.org:5672/"
+url = "amqp://heka:{"Ref":"AMQPPassword"}@logs.{"Ref":"DNSPrefix"}.lcip.org:5672/"
 exchange = "heka"
 exchangeType = "fanout"
 

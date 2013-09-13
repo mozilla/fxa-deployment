@@ -1,0 +1,73 @@
+
+# DNS Records the the important entry-points in the stack. 
+# Each entry embeds the shared DNSPrefix parameter, to allow multiple deploys.
+#
+#    logs.<prefix>.lcip.org:     log collection server
+#
+# Servers for each individual project are currently maintained direct from
+# the project repo using e.g. awsbox.
+
+DNSRecords:
+  Type: AWS::Route53::RecordSetGroup
+  Properties:
+    HostedZoneName: "lcip.org."
+    RecordSets:
+      - Name: {"Fn::Join": [".", ["logs", {"Ref": "DNSPrefix"}, "lcip.org."]]}
+        Type: CNAME
+        TTL: "30"
+        ResourceRecords:
+          - {"Fn::GetAtt": ["LogServer", "PublicDnsName"]}
+
+
+# The log-collecting server, and associated infra.
+# It's just a stand-alone box.
+
+LogServer:
+  Type: AWS::EC2::Instance
+  Properties:
+    InstanceType: m1.medium
+    ImageId: { "Ref": "LogBoxAMI" }
+    KeyName: { "Ref": "AWSBoxDeployKey" }
+    SecurityGroups:
+      - {"Ref": "LogServerSecurityGroup"}
+    UserData: {"Fn::Base64": {"Fn::Join": ["", [
+      "#!/bin/bash\n",
+      "set -e -x\n",
+      "mv /etc/rc.local.post-cloudinit /etc/rc.local\n",
+      "exec /etc/rc.local\n",
+       ]]}}
+
+
+LogServerSecurityGroup:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+    GroupDescription: "awsboxen security group for log-collecting server"
+    SecurityGroupIngress:
+      - IpProtocol: "tcp"
+        FromPort: "22"
+        ToPort: "22"
+        CidrIp: "0.0.0.0/0"
+      # Allow inbound web traffic from anywhere.
+      - IpProtocol: "tcp"
+        FromPort: "80"
+        ToPort: "80"
+        CidrIp: "0.0.0.0/0"
+      - IpProtocol: "tcp"
+        FromPort: "443"
+        ToPort: "443"
+        CidrIp: "0.0.0.0/0"
+      # Allow ElasticSearch access, for the  kibana web interface.
+      - IpProtocol: "tcp"
+        FromPort: "9200"
+        ToPort: "9200"
+        CidrIp: "0.0.0.0/0"
+      # Allow access to heka web dashboard.
+      - IpProtocol: "tcp"
+        FromPort: "4352"
+        ToPort: "4352"
+        CidrIp: "0.0.0.0/0"
+      # Allow inbound heka logs from anywhere.
+      - IpProtocol: "tcp"
+        FromPort: "5672"
+        ToPort: "5672"
+        CidrIp: "0.0.0.0/0"

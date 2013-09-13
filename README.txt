@@ -15,3 +15,11 @@ Something like this:
 
 Right now all the build steps are scripted as shell scripts; they should be
 ported over to puppet or chef or whatever is going to be used longer-term.
+
+We have several different stacks that can be deployed:
+
+  * DevStack:  supporting infrastructure for dev deployments; dev deployments
+               of the projects themselves are handled separately.
+
+  * LoadTestStack:  a more serious stack, including customized deployments of
+                    each project, intended for running loadtests.

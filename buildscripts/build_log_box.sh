@@ -83,18 +83,28 @@ $YUM install rabbitmq-server
 service rabbitmq-server start
 chkconfig rabbitmq-server on
 
+cat > /etc/rabbitmq/rabbitmq.config << EOF
+[
+ {rabbit, [
+   {default_user, <<"heka">>},
+   {default_pass, <<"{'Ref':'AMQPPassword'}">>}
+ ]}
+].
+EOF
+
 
 # Configure heka to receive logs from all the other boxes via AMQP.
 # Nginx logs go into kibana.  Statmetric logs go into Carbon.
 # Everything else just gets dumped to the debug log file.
 # XXX TODO: security, signing, blah blah blah.
+# XXX TODO: carbon not actually working yet.
 
 cd /home/app
 
 cat >> /home/app/hekad/hekad.toml << EOF
 [aggregator-input]
 type = "AMQPInput"
-url = "amqp://guest:guest@localhost:5672/"
+url = "amqp://heka:{"Ref":"AMQPPassword"}@localhost:5672/"
 exchange = "heka"
 exchangeType = "fanout"
 

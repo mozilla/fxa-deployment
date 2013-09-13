@@ -1,5 +1,5 @@
 DNSPrefix:
-  Default: "loadtest"
+  Default: "dev"
   Type: "String"
   Description: "prefix for dns names, to avoid conflicts"
 SMTPRelay:
