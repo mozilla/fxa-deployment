@@ -97,7 +97,7 @@ working_dir=/home/app/hekad
 cmd=/opt/heka-0_4_0-linux-amd64/bin/hekad -config=/home/app/hekad/hekad.toml
 numprocesses = 1
 stdout_stream.class = FileStream
-stdout_stream.filename = /home/app/hekad/circus.stderr.log
+stdout_stream.filename = /home/app/hekad/circus.stdout.log
 stdout_stream.refresh_time = 0.5
 stdout_stream.max_bytes = 1073741824
 stdout_stream.backup_count = 3
