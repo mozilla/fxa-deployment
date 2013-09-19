@@ -80,9 +80,6 @@ EOF
 
 $YUM install rabbitmq-server
 
-service rabbitmq-server start
-chkconfig rabbitmq-server on
-
 cat > /etc/rabbitmq/rabbitmq.config << EOF
 [
  {rabbit, [
@@ -91,6 +88,9 @@ cat > /etc/rabbitmq/rabbitmq.config << EOF
  ]}
 ].
 EOF
+
+service rabbitmq-server start
+chkconfig rabbitmq-server on
 
 
 # Configure heka to receive logs from all the other boxes via AMQP.
