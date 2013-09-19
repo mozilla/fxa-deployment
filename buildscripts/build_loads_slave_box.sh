@@ -15,7 +15,6 @@ stdout_stream.filename = /home/app/loads/circus.stdout.log
 stdout_stream.refresh_time = 0.5
 stdout_stream.max_bytes = 1073741824
 stdout_stream.backup_count = 3
-stderr_stream.class = StdoutStream
 stderr_stream.class = FileStream
 stderr_stream.filename = /home/app/loads/circus.stderr.log
 stderr_stream.refresh_time = 0.5
