@@ -66,8 +66,8 @@ LogServerSecurityGroup:
         FromPort: "4352"
         ToPort: "4352"
         CidrIp: "0.0.0.0/0"
-      # Allow inbound heka logs from anywhere.
+      # Allow inbound heka logs from awsbox security group.
       - IpProtocol: "tcp"
         FromPort: "5672"
         ToPort: "5672"
-        CidrIp: "0.0.0.0/0"
+        SourceSecurityGroupName: "awsbox group v1"
