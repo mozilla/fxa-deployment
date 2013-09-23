@@ -2,6 +2,8 @@
 
 cd /home/app
 
+UDO="sudo -u app"
+
 # Run the load-agent command via circus.
 
 cat >> circus.ini << EOF
@@ -30,7 +32,7 @@ EOF
 cd /home/app
 $UDO git clone https://github.com/mozilla/picl-idp
 cd ./picl-idp
-git checkout loadtest-tweaks
+$UDO git checkout loads-moar-load
 $UDO npm install
 cd ./loadtest
-make build
+$UDO make build
