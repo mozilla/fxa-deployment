@@ -44,6 +44,7 @@ touch circus.ini
 chown app:app circus.ini
 
 cat > /etc/rc.local.post-cloudinit << EOF
+#!/bin/sh -e
 # Run the app-user-controlled service processes via circus.
 su -l app -c '/usr/bin/circusd --daemon /home/app/circus.ini'
 exit 0

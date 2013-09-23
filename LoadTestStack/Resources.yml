@@ -45,7 +45,8 @@ DNSRecords:
 LogServer:
   Type: AWS::EC2::Instance
   Properties:
-    InstanceType: m1.medium
+    # This needs a hekuva lotta CPU to keep up with all the logs...
+    InstanceType: m1.xlarge
     ImageId: { "Ref": "LogBoxAMI" }
     KeyName: { "Ref": "AWSBoxDeployKey" }
     SecurityGroups:
@@ -133,9 +134,9 @@ IdpAutoScaleGroup:
   Properties:
     AvailabilityZones: { "Fn::GetAZs": ""}
     LaunchConfigurationName: { "Ref": "IdpServerLaunchConfig" }
-    DesiredCapacity: "2"
-    MinSize: "2"
-    MaxSize: "2"
+    DesiredCapacity: "3"
+    MinSize: "3"
+    MaxSize: "3"
     LoadBalancerNames:
       - {"Ref": "IdpLoadBalancer"}
   DependsOn:
@@ -150,7 +151,7 @@ IdpAutoScaleGroup:
 IdpServerLaunchConfig:
   Type: AWS::AutoScaling::LaunchConfiguration
   Properties:
-    InstanceType: m1.medium
+    InstanceType: m1.large
     ImageId: { "Ref": "IdpBoxAMI" }
     KeyName: { "Ref": "AWSBoxDeployKey" }
     SecurityGroups:
@@ -481,8 +482,22 @@ LoadsBroker:
        ]]}}
 
 
-LoadsSlave1:
-  Type: AWS::EC2::Instance
+LoadsSlaveAutoScaleGroup:
+  Type: AWS::AutoScaling::AutoScalingGroup
+  Properties:
+    AvailabilityZones: { "Fn::GetAZs": ""}
+    LaunchConfigurationName: { "Ref": "LoadsSlaveLaunchConfig" }
+    DesiredCapacity: "4"
+    MinSize: "4"
+    MaxSize: "4"
+    LoadBalancerNames:
+      - {"Ref": "LoadsLoadBalancer"}
+  DependsOn:
+    - LoadsBroker
+
+
+LoadsSlaveLaunchConfig:
+  Type: AWS::AutoScaling::LaunchConfiguration
   Properties:
     InstanceType: m1.medium
     ImageId: { "Ref": "LoadsSlaveBoxAMI" }
@@ -497,20 +512,18 @@ LoadsSlave1:
        ]]}}
 
 
-LoadsSlave2:
-  Type: AWS::EC2::Instance
+
+LoadsLoadBalancer:
+  Type: AWS::ElasticLoadBalancing::LoadBalancer
   Properties:
-    InstanceType: m1.medium
-    ImageId: { "Ref": "LoadsSlaveBoxAMI" }
-    KeyName: { "Ref": "AWSBoxDeployKey" }
-    SecurityGroups:
-      - {"Ref": "LoadsClusterSecurityGroup"}
-    UserData: {"Fn::Base64": {"Fn::Join": ["", [
-      "#!/bin/bash\n",
-      "set -e -x\n",
-      "mv /etc/rc.local.post-cloudinit /etc/rc.local\n",
-      "exec /etc/rc.local\n",
-       ]]}}
+    AvailabilityZones: {"Fn::GetAZs": ""}
+    # Actually we don't need direct access to these boxes.
+    # I'm attaching them to a load-balancer because it makes them
+    # easier to administer from awsboxen command-line tool.
+    Listeners:
+      - LoadBalancerPort: "80"
+        InstancePort: "80"
+        Protocol: "HTTP"
 
 
 LoadsClusterSecurityGroup:
