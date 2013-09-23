@@ -78,12 +78,6 @@ address = ":8125"
 [StatAccumInput]
 emit_in_fields = true
 
-[debug]
-type = "FileOutput"
-message_matcher = "TRUE"
-path = "/home/app/hekad/hekad.log"
-format = "json"
-
 EOF
 chown app:app hekad/hekad.toml
 

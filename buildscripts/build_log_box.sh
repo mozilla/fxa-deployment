@@ -16,10 +16,12 @@ wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearc
 tar -zxvf elasticsearch-0.90.3.tar.gz
 chown -R app:app elasticsearch-0.90.3
 rm -f elasticsearch-0.90.3.tar.gz
+mkdir -p /opt
+mv ./elasticsearch-0.90.3 /opt
 
 cat >> /home/app/circus.ini << EOF
 [watcher:elasticsearch]
-working_dir=/home/app/elasticsearch-0.90.3
+working_dir=/opt/elasticsearch-0.90.3
 cmd=bin/elasticsearch -f
 numprocesses=1 
 stdout_stream.class = FileStream
@@ -33,10 +35,20 @@ stderr_stream.refresh_time = 0.5
 stderr_stream.max_bytes = 1073741824
 stderr_stream.backup_count = 3
 
-
 [env:elasticsearch]
 ES_HEAP_SIZE = 1g
 
+EOF
+
+mkdir -p /var/data/elasticsearch
+chown -R app:app /var/data/elasticsearch
+
+cat >> /opt/elasticsearch-0.90.3/config/elasticsearch.yml << EOF
+path.data: /var/data/elasticsearch/data
+path.work: /var/data/elasticsearch/work
+bootstrap.mlockall: true
+indices.memory.index_buffer_size: 50%
+index.store.compress.stored: true
 EOF
 
 
