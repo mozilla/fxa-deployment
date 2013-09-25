@@ -51,17 +51,19 @@ LogServer:
     KeyName: { "Ref": "AWSBoxDeployKey" }
     SecurityGroups:
       - {"Ref": "LogServerSecurityGroup"}
-    BlockDeviceMappings:
-      - DeviceName: "/dev/sdb"
-        VirtualName: "ephemeral0"
+    # XXX TODO: try to put the db on a separate disk.
+    #BlockDeviceMappings:
+    #  - DeviceName: "/dev/sdb"
+    #    VirtualName: "ephemeral0"
     UserData: {"Fn::Base64": {"Fn::Join": ["", [
       "#!/bin/bash\n",
       "set -e -x\n",
-      # Mount ephemeral storage onto /var/data, preserving frozen contents.
-      "tar -cjvf /tmp/datadir.tar.bz2 /var/data\n",
-      "mount /dev/sdb /var/data\n",
-      "tar -xjvf /tmp/datadir.tar.bz2 -C /\n",
-      "rm /tmp/datadir.tar.bz2\n",
+      # XXX TODO: get this working, also adjust fstab
+      ## Mount ephemeral storage onto /var/data, preserving frozen contents.
+      #"tar -cjvf /tmp/datadir.tar.bz2 /var/data\n",
+      #"mount /dev/sdb /var/data\n",
+      #"tar -xjvf /tmp/datadir.tar.bz2 -C /\n",
+      #"rm /tmp/datadir.tar.bz2\n",
       # Execute local startup after cloudinit has run.
       "mv /etc/rc.local.post-cloudinit /etc/rc.local\n",
       "exec /etc/rc.local\n",
@@ -134,9 +136,9 @@ IdpAutoScaleGroup:
   Properties:
     AvailabilityZones: { "Fn::GetAZs": ""}
     LaunchConfigurationName: { "Ref": "IdpServerLaunchConfig" }
-    DesiredCapacity: "3"
-    MinSize: "3"
-    MaxSize: "3"
+    DesiredCapacity: "10"
+    MinSize: "10"
+    MaxSize: "10"
     LoadBalancerNames:
       - {"Ref": "IdpLoadBalancer"}
   DependsOn:
@@ -151,7 +153,7 @@ IdpAutoScaleGroup:
 IdpServerLaunchConfig:
   Type: AWS::AutoScaling::LaunchConfiguration
   Properties:
-    InstanceType: m1.large
+    InstanceType: c1.medium
     ImageId: { "Ref": "IdpBoxAMI" }
     KeyName: { "Ref": "AWSBoxDeployKey" }
     SecurityGroups:
@@ -235,7 +237,7 @@ ScryptLoadBalancer:
         InstancePort: "80"
         Protocol: "HTTP"
     HealthCheck:
-      Target: "HTTP:80/"
+      Target: "TCP:80"
       HealthyThreshold: "2"
       UnhealthyThreshold: "2"
       Interval: "10"
@@ -247,9 +249,9 @@ ScryptAutoScaleGroup:
   Properties:
     AvailabilityZones: { "Fn::GetAZs": ""}
     LaunchConfigurationName: { "Ref": "ScryptServerLaunchConfig" }
-    DesiredCapacity: "2"
-    MinSize: "2"
-    MaxSize: "2"
+    DesiredCapacity: "3"
+    MinSize: "3"
+    MaxSize: "3"
     LoadBalancerNames:
       - {"Ref": "ScryptLoadBalancer"}
   UpdatePolicy:
@@ -458,13 +460,13 @@ DBSecurityGroupIngressForPeers:
 
 
 # A little loads cluster that we can use for running loadtests.
-# It's a broker that also acts as a slave, and two additional slave boxes.
+# It's a broker that also acts as a slave, and some additional slave boxes.
 # At some point we might use a shared loads cluster, this will do for now.
 
 LoadsBroker:
   Type: AWS::EC2::Instance
   Properties:
-    InstanceType: m1.medium
+    InstanceType: c1.medium
     ImageId: { "Ref": "LoadsBrokerBoxAMI" }
     KeyName: { "Ref": "AWSBoxDeployKey" }
     SecurityGroups:
@@ -487,9 +489,9 @@ LoadsSlaveAutoScaleGroup:
   Properties:
     AvailabilityZones: { "Fn::GetAZs": ""}
     LaunchConfigurationName: { "Ref": "LoadsSlaveLaunchConfig" }
-    DesiredCapacity: "4"
-    MinSize: "4"
-    MaxSize: "4"
+    DesiredCapacity: "5"
+    MinSize: "5"
+    MaxSize: "5"
     LoadBalancerNames:
       - {"Ref": "LoadsLoadBalancer"}
   DependsOn:
@@ -499,7 +501,7 @@ LoadsSlaveAutoScaleGroup:
 LoadsSlaveLaunchConfig:
   Type: AWS::AutoScaling::LaunchConfiguration
   Properties:
-    InstanceType: m1.medium
+    InstanceType: c1.medium
     ImageId: { "Ref": "LoadsSlaveBoxAMI" }
     KeyName: { "Ref": "AWSBoxDeployKey" }
     SecurityGroups:

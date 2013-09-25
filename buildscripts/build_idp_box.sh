@@ -78,7 +78,7 @@ EOF
 cat >> /home/app/hekad/hekad.toml << EOF
 [picl-idp-log]
 type = "LogfileInput"
-logfile = "/home/app/picl-idp/server.log"
+logfile = "/home/app/picl-idp/circus.stderr.log"
 logger = "picl-idp"
 
 EOF
