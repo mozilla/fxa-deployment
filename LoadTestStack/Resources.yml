@@ -51,19 +51,18 @@ LogServer:
     KeyName: { "Ref": "AWSBoxDeployKey" }
     SecurityGroups:
       - {"Ref": "LogServerSecurityGroup"}
-    # XXX TODO: try to put the db on a separate disk.
-    #BlockDeviceMappings:
-    #  - DeviceName: "/dev/sdb"
-    #    VirtualName: "ephemeral0"
+    BlockDeviceMappings:
+      - DeviceName: "/dev/sdb"
+        VirtualName: "ephemeral0"
     UserData: {"Fn::Base64": {"Fn::Join": ["", [
       "#!/bin/bash\n",
       "set -e -x\n",
-      # XXX TODO: get this working, also adjust fstab
-      ## Mount ephemeral storage onto /var/data, preserving frozen contents.
-      #"tar -cjvf /tmp/datadir.tar.bz2 /var/data\n",
-      #"mount /dev/sdb /var/data\n",
-      #"tar -xjvf /tmp/datadir.tar.bz2 -C /\n",
-      #"rm /tmp/datadir.tar.bz2\n",
+      # Symlink ephemeral storage onto /var/data, preserving contents.
+      "tar -cjvf /tmp/datadir.tar.bz2 /var/data/elasticsearch\n",
+      "rm -rf /var/data\n",
+      "ln -s /media/ephemeral0 /var/data\n",
+      "tar -xjvf /tmp/datadir.tar.bz2 -C /\n",
+      "rm /tmp/datadir.tar.bz2\n",
       # Execute local startup after cloudinit has run.
       "mv /etc/rc.local.post-cloudinit /etc/rc.local\n",
       "exec /etc/rc.local\n",
