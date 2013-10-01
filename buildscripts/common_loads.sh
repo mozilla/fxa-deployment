@@ -13,13 +13,15 @@ sudo python-pip install virtualenv
 cd /home/app
 $UDO git clone https://github.com/mozilla-services/loads/
 cd ./loads
+git checkout rfk/external-runner-refactor
 $UDO make build || true
 $UDO ./bin/pip install "psutil<1.1"
 $UDO make build
 cd ../
 
 $UDO git clone https://github.com/mozilla-services/loads.js
-cd ./loads.js/loads.js
+cd ./loads.js
+git checkout layout-refactor
 $UDO npm install
-cd ../../
+cd ../
 
