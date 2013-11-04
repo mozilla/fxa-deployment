@@ -20,15 +20,15 @@ $YUM install java-1.7.0-openjdk-devel
 
 mkdir -p /opt
 cd /opt
-wget http://www.us.apache.org/dist/cassandra/2.0.0/apache-cassandra-2.0.0-bin.tar.gz
-DIGEST=`md5sum apache-cassandra-2.0.0-bin.tar.gz | cut -d ' ' -f 1`
-if [ $DIGEST != "0be04e604f63bac251aa1aabfa477c66" ]; then
+wget http://www.us.apache.org/dist/cassandra/2.0.2/apache-cassandra-2.0.2-bin.tar.gz
+DIGEST=`md5sum apache-cassandra-2.0.2-bin.tar.gz | cut -d ' ' -f 1`
+if [ $DIGEST != "4d3b31915fb655b78491536e499d1bd3" ]; then
   echo "BAD DIGEST; ABORTING!"
   exit 1
 fi
-tar -xzvf apache-cassandra-2.0.0-bin.tar.gz
-rm -f apache-cassandra-2.0.0-bin.tar.gz
-mv apache-cassandra-2.0.0 cassandra
+tar -xzvf apache-cassandra-2.0.2-bin.tar.gz
+rm -f apache-cassandra-2.0.2-bin.tar.gz
+mv apache-cassandra-2.0.2 cassandra
 
 mkdir -p /var/log/cassandra
 chown -R app /var/log/cassandra
