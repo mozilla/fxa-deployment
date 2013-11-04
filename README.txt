@@ -13,6 +13,11 @@ Something like this:
 
   awsboxen deploy -c ./LoadTestStack loadtest-lcip-org
 
+when you're done with a deployment, you can save money by tearing it down
+like this:
+
+  awsboxen teardown loadtest-lcip-org
+
 Right now all the build steps are scripted as shell scripts; they should be
 ported over to puppet or chef or whatever is going to be used longer-term.
 
@@ -23,3 +28,4 @@ We have several different stacks that can be deployed:
 
   * LoadTestStack:  a more serious stack, including customized deployments of
                     each project, intended for running loadtests.
+
