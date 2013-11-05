@@ -23,8 +23,10 @@ $UDO npm install
 cat >> config/awsboxen.json << EOF
 {
   "kvstore": {
-    "cache": "memcached",
-    "backend": "cassandra"
+    "backend": "mysql"
+  },
+  "mysql": {
+    "create_schema": true
   },
   "smtp": {
     "host": "localhost",

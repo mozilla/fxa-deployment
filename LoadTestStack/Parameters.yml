@@ -2,6 +2,10 @@ DNSPrefix:
   Default: "loadtest"
   Type: "String"
   Description: "prefix for dns names, to avoid conflicts"
+DBPassword:
+  Default: "piclmesoftly"
+  Type: "String"
+  Description: "password for connecting to mysql database"
 SMTPRelay:
   Default: ""
   Type: "String"
