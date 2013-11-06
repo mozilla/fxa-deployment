@@ -19,8 +19,7 @@ $UDO make build
 cd ../
 
 $UDO git clone https://github.com/mozilla-services/loads.js
-cd ./loads.js
-$UDO git checkout layout-refactor
+cd ./loads.js/loads.js
 $UDO npm install
 cd ../
 
