@@ -19,5 +19,8 @@ stderr_stream.refresh_time = 0.5
 stderr_stream.max_bytes = 1073741824
 stderr_stream.backup_count = 3
 
+[env:loads-broker]
+PYTHON_EGG_CACHE = /home/app/python-egg-cache
+
 EOF
 

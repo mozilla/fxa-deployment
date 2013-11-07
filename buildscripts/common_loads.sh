@@ -23,3 +23,5 @@ cd ./loads.js
 $UDO npm install
 cd ../
 
+$UDO mkdir ./python-egg-cache
+chmod 700 ./python-egg-cache
