@@ -345,8 +345,8 @@ Database:
     Port: "3306"
     MasterUsername: "picl"
     MasterUserPassword: {"Ref": "DBPassword"}
-    DBInstanceClass: "db.m1.small"
-    AllocatedStorage: "5"
+    DBInstanceClass: "db.m1.xlarge"
+    AllocatedStorage: "20"
     MultiAZ: true
     DBSecurityGroups:
       - {"Ref": "DatabaseSecurityGroup"}
