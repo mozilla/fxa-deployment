@@ -15,6 +15,7 @@ $UDO git checkout loads-moar-load
 $UDO npm install
 cd ./loadtest
 $UDO make build
+cd ../../
 
 # Run the load-agent command via circus.
 

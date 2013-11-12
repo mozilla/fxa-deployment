@@ -13,6 +13,7 @@ sudo python-pip install virtualenv
 cd /home/app
 $UDO git clone https://github.com/mozilla-services/loads/
 cd ./loads
+git checkout -t origin/rfk/dont-import-until-deps-installed
 $UDO make build || true
 $UDO ./bin/pip install "psutil<1.1"
 $UDO make build
