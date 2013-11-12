@@ -395,6 +395,10 @@ LoadsSlaveAutoScaleGroup:
     MaxSize: "5"
     LoadBalancerNames:
       - {"Ref": "LoadsLoadBalancer"}
+  UpdatePolicy:
+    AutoScalingRollingUpdate:
+      MinInstancesInService: "1"
+      MaxBatchSize: "1"
   DependsOn:
     - LoadsBroker
 
