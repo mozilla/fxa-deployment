@@ -22,3 +22,7 @@ AMQPPassword:
   Default: "guest"
   Type: "String"
   Description: "password for AMQP log-aggregation endpoint"
+IDPGitRef:
+  Default: "master"
+  Type: "String"
+  Description: "git ref to checkout for picl-idp repository"

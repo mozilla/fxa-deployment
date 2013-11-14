@@ -18,6 +18,7 @@ $YUM install nodejs npm gmp gmp-devel
 cd /home/app
 $UDO git clone https://github.com/mozilla/picl-idp
 cd picl-idp
+git checkout {"Ref":"IDPGitRef"}
 $UDO npm install
 
 cat >> config/awsboxen.json << EOF
