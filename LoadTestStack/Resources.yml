@@ -111,7 +111,7 @@ HekaClientSecurityGroup:
     GroupDescription: "awsboxen security group for heka clients"
 
 
-# The picl-idp webheads, and associated infra.
+# The fxa-auth-server webheads, and associated infra.
 # These machines are stateless, so we run an auto-scaling group of them
 
 IdpLoadBalancer:
@@ -173,16 +173,16 @@ IdpServerLaunchConfig:
          # This is the .json config file in which the server will look
          # for customizations.  We write it at deploy time because it
          # needs to embed e.g. the public-facing URL, cache server URL, etc.
-         /home/app/picl-idp/config/cloud_formation.json:
+         /home/app/fxa-auth-server/config/cloud_formation.json:
            content:
              # Public-facing URL, as configured in the DNSRecord.
              public_url: {"Fn::Join": ["", ["http://", {"Fn::Join": [".", ["idp", {"Ref": "DNSPrefix"}, "lcip.org"]]}]]}
              domain: {"Fn::Join": [".", ["idp", {"Ref": "DNSPrefix"}, "lcip.org"]]}
              # Using the RDS MySQL instance for storace
              mysql:
-               user: "picl"
+               user: "fxa"
                password: {"Ref": "DBPassword"}
-               database: "picl"
+               database: "fxa"
                host: {"Fn::Join": [".", ["db",{"Ref":"DNSPrefix"},"lcip.org"]]}
              # Using the elasticache cluster for short-lived cache data.
              memcached:
@@ -196,7 +196,7 @@ IdpServerLaunchConfig:
 IdpServerSecurityGroup:
   Type: AWS::EC2::SecurityGroup
   Properties:
-    GroupDescription: "awsboxen security group for picl-idp webheads"
+    GroupDescription: "awsboxen security group for fxa-auth-server webheads"
     SecurityGroupIngress:
       # Allow ssh from anywhere.
       - IpProtocol: "tcp"
@@ -324,7 +324,7 @@ Cache:
 CacheSecurityGroup:
   Type: AWS::ElastiCache::SecurityGroup
   Properties:
-    Description: "picl-idp webhead session-store cache"
+    Description: "fxa-auth-server webhead session-store cache"
 
 
 CacheSecurityGroupIngress:
@@ -340,10 +340,10 @@ CacheSecurityGroupIngress:
 Database:
   Type: AWS::RDS::DBInstance
   Properties:
-    DBName: "picl"
+    DBName: "fxa"
     Engine: "MySQL"
     Port: "3306"
-    MasterUsername: "picl"
+    MasterUsername: "fxa"
     MasterUserPassword: {"Ref": "DBPassword"}
     DBInstanceClass: "db.m1.xlarge"
     AllocatedStorage: "20"
@@ -355,7 +355,7 @@ Database:
 DatabaseSecurityGroup:
   Type: AWS::RDS::DBSecurityGroup
   Properties:
-    GroupDescription: "awsboxen security group for picl-idp database"
+    GroupDescription: "awsboxen security group for fxa-auth-server database"
     DBSecurityGroupIngress:
         - EC2SecurityGroupName: {"Ref": "IdpServerSecurityGroup"}
 

@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# Build a webhead node for scrypt-helper.
+# Build a webhead node for fxa-scrypt-helper.
 #
-# This script builds a custom machine setup for running the scrypt-helper
+# This script builds a custom machine setup for running the fxa-scrypt-helper
 # python application.
 
 set -e
@@ -11,14 +11,14 @@ UDO="sudo -u app"
 
 YUM="yum --assumeyes --enablerepo=epel"
 
-# Grab and build the latest master of scrypt-helper.
+# Grab and build the latest master of fxa-scrypt-helper.
 
 $YUM install openssl-devel python-devel gcc gcc-c++
 python-pip install virtualenv
 
 cd /home/app
-$UDO git clone https://github.com/mozilla/scrypt-helper.git
-cd ./scrypt-helper
+$UDO git clone https://github.com/mozilla/fxa-scrypt-helper.git
+cd ./fxa-scrypt-helper
 
 $UDO virtualenv --no-site-packages ./local
 $UDO ./local/bin/pip install .
@@ -31,17 +31,17 @@ $UDO ./local/bin/pip install gunicorn
 
 cd ../
 cat >> circus.ini << EOF
-[watcher:scrypt-helper]
-working_dir=/home/app/scrypt-helper
+[watcher:fxa-scrypt-helper]
+working_dir=/home/app/fxa-scrypt-helper
 cmd=local/bin/gunicorn --workers=5 --error-logfile=- --access-logfile=- scrypt_helper.run
 numprocesses = 1
 stdout_stream.class = FileStream
-stdout_stream.filename = /home/app/scrypt-helper/circus.stdout.log
+stdout_stream.filename = /home/app/fxa-scrypt-helper/circus.stdout.log
 stdout_stream.refresh_time = 0.5
 stdout_stream.max_bytes = 1073741824
 stdout_stream.backup_count = 3
 stderr_stream.class = FileStream
-stderr_stream.filename = /home/app/scrypt-helper/circus.stderr.log
+stderr_stream.filename = /home/app/fxa-scrypt-helper/circus.stderr.log
 stderr_stream.refresh_time = 0.5
 stderr_stream.max_bytes = 1073741824
 stderr_stream.backup_count = 3

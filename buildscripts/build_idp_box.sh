@@ -1,10 +1,10 @@
 #!/bin/sh
 #
-# Build a webhead node for picl-idp.
+# Build a webhead node for fxa-auth-server.
 #
-# This script builds a custom machine setup for running the picl-idp nodejs
-# application.  It's running on top of a stack more familiar to the services
-# team than the black-box of the awsbox AMI.
+# This script builds a custom machine setup for running the fxa-auth-server 
+# node js application.  It's running on top of a stack more familiar to the
+# services team than the black-box of the awsbox AMI.
 
 set -e
 
@@ -13,11 +13,11 @@ UDO="sudo -u app"
 YUM="yum --assumeyes --enablerepo=epel"
 $YUM install nodejs npm gmp gmp-devel
 
-# Grab and build the latest master of picl-idp.
+# Grab and build the latest master of fxa-auth-server.
 
 cd /home/app
-$UDO git clone https://github.com/mozilla/picl-idp
-cd picl-idp
+$UDO git clone https://github.com/mozilla/fxa-auth-server
+cd fxa-auth-server
 git checkout {"Ref":"IDPGitRef"}
 $UDO npm install
 
@@ -34,8 +34,8 @@ cat >> config/awsboxen.json << EOF
     "port": 25,
     "secure": false
   },
-  "secretKeyFile": "/home/app/picl-idp/config/secret-key.json",
-  "publicKeyFile": "/home/app/picl-idp/config/public-key.json",
+  "secretKeyFile": "/home/app/fxa-auth-server/config/secret-key.json",
+  "publicKeyFile": "/home/app/fxa-auth-server/config/public-key.json",
   "bridge": {
     "url": "http://accounts.{"Ref":"DNSPrefix"}.lcip.org"
   },
@@ -55,16 +55,16 @@ $UDO node ./scripts/gen_keys.js
 cd ../
 cat >> circus.ini << EOF
 [watcher:keyserver]
-working_dir=/home/app/picl-idp
+working_dir=/home/app/fxa-auth-server
 cmd=node bin/key_server.js
 numprocesses = 1
 stdout_stream.class = FileStream
-stdout_stream.filename = /home/app/picl-idp/circus.stdout.log
+stdout_stream.filename = /home/app/fxa-auth-server/circus.stdout.log
 stdout_stream.refresh_time = 0.5
 stdout_stream.max_bytes = 1073741824
 stdout_stream.backup_count = 3
 stderr_stream.class = FileStream
-stderr_stream.filename = /home/app/picl-idp/circus.stderr.log
+stderr_stream.filename = /home/app/fxa-auth-server/circus.stderr.log
 stderr_stream.refresh_time = 0.5
 stderr_stream.max_bytes = 1073741824
 stderr_stream.backup_count = 3
@@ -72,17 +72,17 @@ stderr_stream.backup_count = 3
 
 [env:keyserver]
 PORT=8000
-CONFIG_FILES=/home/app/picl-idp/config/awsboxen.json,/home/app/picl-idp/config/cloud_formation.json
+CONFIG_FILES=/home/app/fxa-auth-server/config/awsboxen.json,/home/app/fxa-auth-server/config/cloud_formation.json
 EOF
 
 
-# Slurp the picl-idp server log into heka.
+# Slurp the fxa-auth-server server log into heka.
 
 cat >> /home/app/hekad/hekad.toml << EOF
-[picl-idp-log]
+[fxa-auth-server-log]
 type = "LogfileInput"
-logfile = "/home/app/picl-idp/circus.stderr.log"
-logger = "picl-idp"
+logfile = "/home/app/fxa-auth-server/circus.stderr.log"
+logger = "fxa-auth-server"
 
 EOF
 
