@@ -15,20 +15,21 @@ $YUM install python-pip git openssl-devel python-devel
 $YUM install gcc gcc-c++ czmq-devel zeromq nginx
 
 
+# Add unprivileged users as which to run various services.
+
+useradd app
+UDO="sudo -u app"
+
+
 # Add ssh public keys.
 
 git clone https://github.com/mozilla/identity-pubkeys
 cd identity-pubkeys
 git checkout 9e009e6f15f28debfb59d3d7787dfc20c50e230f
 cat *.pub >> /home/ec2-user/.ssh/authorized_keys
+cat *.pub >> /home/app/.ssh/authorized_keys
 cd ..
 rm -rf identity-pubkeys
-
-
-# Add unprivileged users as which to run various services.
-
-useradd app
-UDO="sudo -u app"
 
 
 # Configure circus to run on startup, executing users' circus.ini files.
