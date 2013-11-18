@@ -19,6 +19,9 @@ $YUM install gcc gcc-c++ czmq-devel zeromq nginx
 
 useradd app
 UDO="sudo -u app"
+mkdir /home/app/.ssh
+chown app:app /home/app/.ssh
+chmod 700 /home/app/.ssh
 
 
 # Add ssh public keys.
