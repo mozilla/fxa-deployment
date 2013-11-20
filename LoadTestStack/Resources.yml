@@ -3,7 +3,8 @@
 # Each entry embeds the shared DNSPrefix parameter, to allow multiple deploys.
 #
 #    logs.<prefix>.lcip.org:     log collection server
-#    idp.<prefix>.lcip.org:      loadbalancer fronting webheads
+#    api-accounts.<prefix>.lcip.org:      loadbalancer fronting webheads
+#    scrypt-accounts.<prefix>.lcip.org:   loadbalancer fronting scrypt nodes
 #    db.<prefix>.lcip.org:       public alias for the MySQL database
 #    loads.<prefix>.lcip.org:    loads broker for submitting loadtest jobs
 
@@ -17,7 +18,7 @@ DNSRecords:
         TTL: "30"
         ResourceRecords:
           - {"Fn::GetAtt": ["LogServer", "PublicDnsName"]}
-      - Name: {"Fn::Join": [".", ["idp", {"Ref":"DNSPrefix"}, "lcip.org."]]}
+      - Name: {"Fn::Join": [".", ["api-accounts", {"Ref":"DNSPrefix"}, "lcip.org."]]}
         Type: CNAME
         TTL: "30"
         ResourceRecords:
@@ -27,7 +28,7 @@ DNSRecords:
         TTL: "30"
         ResourceRecords:
           - {"Fn::GetAtt": ["Database", "Endpoint.Address"]}
-      - Name: {"Fn::Join": [".", ["scrypt", {"Ref":"DNSPrefix"}, "lcip.org."]]}
+      - Name: {"Fn::Join": [".", ["scrypt-accounts", {"Ref":"DNSPrefix"}, "lcip.org."]]}
         Type: CNAME
         TTL: "30"
         ResourceRecords:
