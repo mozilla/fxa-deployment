@@ -4,19 +4,6 @@ cd /home/app
 
 UDO="sudo -u app"
 
-# Install fxa-auth-server repo so that we can run its loadtests.
-# This is a pretty awful hack, need better support in loads for
-# customizing the agent.
-
-cd /home/app
-$UDO git clone https://github.com/mozilla/fxa-auth-server
-cd ./fxa-auth-server
-$UDO git checkout loads-moar-load
-$UDO npm install
-cd ./loadtest
-$UDO make build
-cd ../../
-
 # Run the load-agent command via circus.
 
 cat >> circus.ini << EOF
