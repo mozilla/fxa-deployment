@@ -11,6 +11,7 @@ instructions:
 
 Something like this:
 
+  export AWS_REGION=us-west-2
   awsboxen deploy -c ./LoadTestStack loadtest-lcip-org
 
 when you're done with a deployment, you can save money by tearing it down
