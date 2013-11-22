@@ -23,7 +23,7 @@ $UDO npm install
 
 cat >> config/awsboxen.json << EOF
 {
-  "env": "local",
+  "env": "dev",
   "kvstore": {
     "backend": "mysql"
   },
