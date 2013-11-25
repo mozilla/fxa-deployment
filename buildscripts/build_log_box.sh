@@ -37,6 +37,7 @@ stderr_stream.backup_count = 3
 
 [env:elasticsearch]
 ES_HEAP_SIZE = 1g
+JAVA_HOME=/usr
 
 EOF
 
