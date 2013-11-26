@@ -58,14 +58,16 @@ chmod 755 /etc/rc.local.post-cloudinit
 
 # Install heka.
 
-HEKAFILE=heka-0_4_0-picl-idp-amd64.tar.gz
+HEKAURL=https://github.com/mozilla-services/heka/releases/download/v0.4.1/heka-0_4_1-linux-amd64.tar.gz
+HEKAFILE=`basename $HEKAURL`
 cd /opt
-wget https://people.mozilla.com/~rmiller/heka/$HEKAFILE
+wget $HEKAURL
 tar -xzvf $HEKAFILE
 rm -f $HEKAFILE
 
 cd /home/app
 mkdir ./hekad
+mkdir ./hekad/dashboard_static
 chown app:app ./hekad
 
 # Set some basic heka configuration.
@@ -73,9 +75,6 @@ chown app:app ./hekad
 cat > ./hekad/hekad.toml << EOF
 [hekad]
 base_dir = "/home/app/hekad"
-
-[UdpInput]
-address = "127.0.0.1:4880"
 
 [StatsdInput]
 address = ":8125"
@@ -93,7 +92,7 @@ cat >> circus.ini << EOF
 
 [watcher:hekad]
 working_dir=/home/app/hekad
-cmd=/opt/heka-0_4_0-linux-amd64/bin/hekad -config=/home/app/hekad/hekad.toml
+cmd=/opt/heka-0_4_1-linux-amd64/bin/hekad -config=/home/app/hekad/hekad.toml
 numprocesses = 1
 stdout_stream.class = FileStream
 stdout_stream.filename = /home/app/hekad/circus.stdout.log

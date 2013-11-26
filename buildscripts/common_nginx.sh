@@ -69,7 +69,7 @@ cat >> /home/app/hekad/hekad.toml << EOF
 [nginx-access-log]
 type = "LogfileInput"
 logfile = "/var/log/nginx/access.log"
-decoders = ["nginx-log-decoder"]
+decoder = "nginx-log-decoder"
 
 [nginx-log-decoder]
 type = "PayloadRegexDecoder"
