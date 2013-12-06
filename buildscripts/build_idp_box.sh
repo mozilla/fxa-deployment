@@ -78,14 +78,14 @@ EOF
 
 
 # Slurp the fxa-auth-server server log into heka.
-
-cat >> /home/app/hekad/hekad.toml << EOF
-[fxa-auth-server-log]
-type = "LogfileInput"
-logfile = "/home/app/fxa-auth-server/circus.stderr.log"
-logger = "fxa-auth-server"
-
-EOF
+# XXX TODO: disabling this due to massive logbox overload
+#cat >> /home/app/hekad/hekad.toml << EOF
+#[fxa-auth-server-log]
+#type = "LogfileInput"
+#logfile = "/home/app/fxa-auth-server/circus.stderr.log"
+#logger = "fxa-auth-server"
+#
+#EOF
 
 
 # Configure postfix to send emails via parametereized SMTP relay.
