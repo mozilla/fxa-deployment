@@ -1,0 +1,103 @@
+
+DNSRecords:
+  Type: AWS::Route53::RecordSetGroup
+  Properties:
+    HostedZoneName: "lcip.org."
+    RecordSets:
+      - Name: "broker.loads.lcip.org"
+        Type: CNAME
+        TTL: "30"
+        ResourceRecords:
+          - {"Fn::GetAtt": ["LoadsBroker", "PublicDnsName"]}
+
+
+LoadsBroker:
+  Type: AWS::EC2::Instance
+  Properties:
+    InstanceType: c1.medium
+    ImageId: { "Ref": "BrokerBoxAMI" }
+    KeyName: { "Ref": "AWSBoxDeployKey" }
+    SecurityGroups:
+      - {"Ref": "LoadsClusterSecurityGroup"}
+    # Insert the private IP address into the circus.ini file.
+    # This ensures the broker gives out correct endpoint addresses.
+    UserData: {"Fn::Base64": {"Fn::Join": ["", [
+      "#!/bin/bash\n",
+      "set -e -x\n",
+      "ME=`curl http://169.254.169.254/latest/meta-data/local-ipv4`\n",
+      "perl -pi -e 's/0.0.0.0/'$ME'/g' ",
+          "/home/app/circus.ini\n",
+      "mv /etc/rc.local.post-cloudinit /etc/rc.local\n",
+      "exec /etc/rc.local\n",
+       ]]}}
+
+
+LoadsAgentAutoScaleGroup:
+  Type: AWS::AutoScaling::AutoScalingGroup
+  Properties:
+    AvailabilityZones: { "Fn::GetAZs": ""}
+    LaunchConfigurationName: { "Ref": "LoadsAgentLaunchConfig" }
+    DesiredCapacity: "5"
+    MinSize: "5"
+    MaxSize: "5"
+    LoadBalancerNames:
+      - {"Ref": "LoadsAgentLoadBalancer"}
+  UpdatePolicy:
+    AutoScalingRollingUpdate:
+      MinInstancesInService: "1"
+      MaxBatchSize: "1"
+  DependsOn:
+    - LoadsBroker
+
+
+LoadsAgentLaunchConfig:
+  Type: AWS::AutoScaling::LaunchConfiguration
+  Properties:
+    InstanceType: c1.medium
+    ImageId: { "Ref": "AgentBoxAMI" }
+    KeyName: { "Ref": "AWSBoxDeployKey" }
+    SecurityGroups:
+      - {"Ref": "LoadsClusterSecurityGroup"}
+    UserData: {"Fn::Base64": {"Fn::Join": ["", [
+      "#!/bin/bash\n",
+      "set -e -x\n",
+      "mv /etc/rc.local.post-cloudinit /etc/rc.local\n",
+      "exec /etc/rc.local\n",
+       ]]}}
+
+
+LoadsAgentLoadBalancer:
+  Type: AWS::ElasticLoadBalancing::LoadBalancer
+  Properties:
+    AvailabilityZones: {"Fn::GetAZs": ""}
+    # Actually we don't need direct access to these boxes.
+    # I'm attaching them to a load-balancer because it makes them
+    # easier to administer from awsboxen command-line tool.
+    Listeners:
+      - LoadBalancerPort: "80"
+        InstancePort: "80"
+        Protocol: "HTTP"
+
+
+LoadsClusterSecurityGroup:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+    GroupDescription: "awsboxen security group for loads cluster"
+    SecurityGroupIngress:
+      # Allow ssh from anywhere.
+      - IpProtocol: "tcp"
+        FromPort: "22"
+        ToPort: "22"
+        CidrIp: "0.0.0.0/0"
+
+
+LoadsClusterSecurityGroupIngressForPeers:
+  # Allow peer access to all ports, for ZMQ connectivity.
+  # We should lock this down a *little* more.
+  Type: AWS::EC2::SecurityGroupIngress
+  Properties:
+    GroupName: {"Ref": "LoadsClusterSecurityGroup"}
+    IpProtocol: "tcp"
+    FromPort: "0"
+    ToPort: "65535"
+    SourceSecurityGroupName: {"Ref": "LoadsClusterSecurityGroup"}

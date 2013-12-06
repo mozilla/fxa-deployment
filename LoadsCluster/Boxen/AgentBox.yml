@@ -5,5 +5,4 @@ Properties:
   BuildScripts:
     - buildscripts/common.sh
     - buildscripts/common_loads.sh
-    - buildscripts/build_loads_slave_box.sh
-    - buildscripts/build_loads_broker_box.sh
+    - buildscripts/build_loads_agent_box.sh

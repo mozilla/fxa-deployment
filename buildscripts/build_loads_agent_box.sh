@@ -4,13 +4,13 @@ cd /home/app
 
 UDO="sudo -u app"
 
-# Run the load-agent command via circus.
+# Run the loads-agent command via circus.
 
 cat >> circus.ini << EOF
 
 [watcher:loads-agent]
 working_dir=/home/app/loads
-cmd=./bin/loads-agent --broker tcp://loads.{"Ref":"DNSPrefix"}.lcip.org:7780
+cmd=./bin/loads-agent --broker tcp://broker.loads.lcip.org:7780
 numprocesses = 1
 stdout_stream.class = FileStream
 stdout_stream.filename = /home/app/loads/circus.stdout.log

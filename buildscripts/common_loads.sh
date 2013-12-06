@@ -5,7 +5,7 @@ set -e
 YUM="yum --assumeyes --enablerepo=epel"
 UDO="sudo -u app"
 
-$YUM install nodejs npm gmp gmp-devel libevent-devel
+$YUM install libevent-devel
 sudo python-pip install virtualenv
 
 # Install loads from github master.

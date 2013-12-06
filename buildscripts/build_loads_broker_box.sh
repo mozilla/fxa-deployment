@@ -27,4 +27,3 @@ warmup_delay = 5
 PYTHON_EGG_CACHE = /home/app/python-egg-cache
 
 EOF
-
