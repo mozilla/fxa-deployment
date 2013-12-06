@@ -39,9 +39,6 @@ cat >> config/awsboxen.json << EOF
   "publicKeyFile": "/home/app/fxa-auth-server/config/public-key.json",
   "bridge": {
     "url": "http://accounts.{"Ref":"DNSPrefix"}.lcip.org"
-  },
-  "dev": {
-    "verified": true
   }
 }
 EOF
