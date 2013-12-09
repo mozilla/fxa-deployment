@@ -1,0 +1,7 @@
+# An AMI for the redis server.
+Type: AWSBoxen::BuildScript
+Properties:
+  BaseAMI: {"Fn::FindInMap": ["RegionMap", {"Ref": "AWS::Region"}, "BaseAMI"]}
+  BuildScripts:
+    - buildscripts/common.sh
+    - buildscripts/build_redis_box.sh

@@ -22,6 +22,10 @@ AMQPPassword:
   Default: "guest"
   Type: "String"
   Description: "password for AMQP log-aggregation endpoint"
+RedisPassword:
+  Default: "guest"
+  Type: "String"
+  Description: "password for connecting to redis database"
 IDPGitRef:
   Default: "master"
   Type: "String"

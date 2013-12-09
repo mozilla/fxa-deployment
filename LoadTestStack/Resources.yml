@@ -6,6 +6,7 @@
 #    api-accounts.<prefix>.lcip.org:      loadbalancer fronting webheads
 #    scrypt-accounts.<prefix>.lcip.org:   loadbalancer fronting scrypt nodes
 #    db.<prefix>.lcip.org:       public alias for the MySQL database
+#    redis.<prefix>.lcip.org:    public alias for the Redis database
 
 DNSRecords:
   Type: AWS::Route53::RecordSetGroup
@@ -32,6 +33,11 @@ DNSRecords:
         TTL: "30"
         ResourceRecords:
           - {"Fn::GetAtt": ["ScryptLoadBalancer", "DNSName"]}
+      - Name: {"Fn::Join": [".", ["redis", {"Ref": "DNSPrefix"}, "lcip.org."]]}
+        Type: CNAME
+        TTL: "30"
+        ResourceRecords:
+          - {"Fn::GetAtt": ["RedisServer", "PublicDnsName"]}
 
 
 # The log-collecting server, and associated infra.
@@ -136,7 +142,7 @@ IdpAutoScaleGroup:
     LoadBalancerNames:
       - {"Ref": "IdpLoadBalancer"}
   DependsOn:
-    - Cache
+    - RedisServer
     - Database
   UpdatePolicy:
     AutoScalingRollingUpdate:
@@ -173,19 +179,16 @@ IdpServerLaunchConfig:
              # Public-facing URL, as configured in the DNSRecord.
              public_url: {"Fn::Join": ["", ["http://", {"Fn::Join": [".", ["api-accounts", {"Ref": "DNSPrefix"}, "lcip.org"]]}]]}
              domain: {"Fn::Join": [".", ["api-accounts", {"Ref": "DNSPrefix"}, "lcip.org"]]}
-             # Using the RDS MySQL instance for storace
+             # Using the RDS MySQL instance for storage
              mysql:
                user: "fxa"
                password: {"Ref": "DBPassword"}
                database: "fxa"
                host: {"Fn::Join": [".", ["db",{"Ref":"DNSPrefix"},"lcip.org"]]}
-             # Using the elasticache redis instance for short-lived cache data.
+             # Using the Redis instance for nonce  cache
              redis:
-               host: {"Fn::Join": ["", [
-                  {"Fn::GetAtt": ["Redis", "ConfigurationEndpoint.Address"]},
-                  ":",
-                  {"Fn::GetAtt": ["Redis", "ConfigurationEndpoint.Port"]}
-                      ]]}
+               host: {"Fn::Join": [".", ["redis",{"Ref":"DNSPrefix"},"lcip.org"]]}
+               password: {"Ref": "RedisPassword"}
 
 
 IdpServerSecurityGroup:
@@ -303,29 +306,43 @@ ScryptSecurityGroupIngressForLoadBalancer:
 
 
 # A redis instance for storing nonces.
-# We'll probably grow into using it for other things as well.
+# We'll probably grow into using redis for other things as well, so
+# maybe it should probably be some sort of cluster...
+# We could use ElastiCache for this, but it requires calling the AWS API
+# at boot to determine the endpoing URL of the server.  Ugh.
 
-Redis:
-  Type: AWS::ElastiCache::CacheCluster
+RedisServer:
+  Type: AWS::EC2::Instance
   Properties:
-    CacheNodeType: cache.m1.small
-    NumCacheNodes: "1"
-    Engine: redis
-    CacheSecurityGroupNames:
-      - {"Ref": "RedisSecurityGroup"}
+    InstanceType: c1.medium
+    ImageId: { "Ref": "RedisBoxAMI" }
+    KeyName: { "Ref": "AWSBoxDeployKey" }
+    SecurityGroups:
+      - {"Ref": "RedisServerSecurityGroup"}
+      - {"Ref": "HekaClientSecurityGroup"}
+    UserData: {"Fn::Base64": {"Fn::Join": ["", [
+      "#!/bin/bash\n",
+      "set -e -x\n",
+      "mv /etc/rc.local.post-cloudinit /etc/rc.local\n",
+      "exec /etc/rc.local\n",
+       ]]}}
 
 
-RedisSecurityGroup:
-  Type: AWS::ElastiCache::SecurityGroup
+RedisServerSecurityGroup:
+  Type: AWS::EC2::SecurityGroup
   Properties:
-    Description: "fxa-auth-server webhead session-store cache"
-
-
-RedisSecurityGroupIngress:
-  Type: AWS::ElastiCache::SecurityGroupIngress
-  Properties:
-    CacheSecurityGroupName: { "Ref": "RedisSecurityGroup"}
-    EC2SecurityGroupName: { "Ref": "IdpServerSecurityGroup"}
+    GroupDescription: "awsboxen security group for redis server"
+    SecurityGroupIngress:
+      # Allow ssh from anywhere.
+      - IpProtocol: "tcp"
+        FromPort: "22"
+        ToPort: "22"
+        CidrIp: "0.0.0.0/0"
+      # Allow redis protocol access from the webheads.
+      - IpProtocol: "tcp"
+        FromPort: "6379"
+        ToPort: "6379"
+        SourceSecurityGroupName: {"Ref": "IdpServerSecurityGroup"}
 
 
 # The backend database, and supporting infra.
