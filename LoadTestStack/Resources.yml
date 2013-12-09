@@ -179,12 +179,12 @@ IdpServerLaunchConfig:
                password: {"Ref": "DBPassword"}
                database: "fxa"
                host: {"Fn::Join": [".", ["db",{"Ref":"DNSPrefix"},"lcip.org"]]}
-             # Using the elasticache cluster for short-lived cache data.
-             memcached:
-               hosts: {"Fn::Join": ["", [
-                  {"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Address"]},
+             # Using the elasticache redis instance for short-lived cache data.
+             redis:
+               host: {"Fn::Join": ["", [
+                  {"Fn::GetAtt": ["Redis", "ConfigurationEndpoint.Address"]},
                   ":",
-                  {"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Port"]}
+                  {"Fn::GetAtt": ["Redis", "ConfigurationEndpoint.Port"]}
                       ]]}
 
 
@@ -302,30 +302,29 @@ ScryptSecurityGroupIngressForLoadBalancer:
 
 
 
-# The session-store cache, and supporting infra.
-# It's an elasticache store for now, but it might make sense
-# to put this on the webheads, or write it into cassandra.
+# A redis instance for storing nonces.
+# We'll probably grow into using it for other things as well.
 
-Cache:
+Redis:
   Type: AWS::ElastiCache::CacheCluster
   Properties:
     CacheNodeType: cache.m1.small
     NumCacheNodes: "1"
-    Engine: memcached
+    Engine: redis
     CacheSecurityGroupNames:
-      - {"Ref": "CacheSecurityGroup"}
+      - {"Ref": "RedisSecurityGroup"}
 
 
-CacheSecurityGroup:
+RedisSecurityGroup:
   Type: AWS::ElastiCache::SecurityGroup
   Properties:
     Description: "fxa-auth-server webhead session-store cache"
 
 
-CacheSecurityGroupIngress:
+RedisSecurityGroupIngress:
   Type: AWS::ElastiCache::SecurityGroupIngress
   Properties:
-    CacheSecurityGroupName: { "Ref": "CacheSecurityGroup"}
+    CacheSecurityGroupName: { "Ref": "RedisSecurityGroup"}
     EC2SecurityGroupName: { "Ref": "IdpServerSecurityGroup"}
 
 
