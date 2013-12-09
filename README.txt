@@ -30,3 +30,6 @@ We have several different stacks that can be deployed:
   * LoadTestStack:  a more serious stack, including customized deployments of
                     each project, intended for running loadtests.
 
+  * LoadsCluster:  a custom deployment of loads broker and agents, useful
+                   for running distributed loadtests.
+
