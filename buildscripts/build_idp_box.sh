@@ -24,7 +24,7 @@ $UDO npm install
 cat >> config/awsboxen.json << EOF
 {
   "env": "dev",
-  "kvstore": {
+  "db": {
     "backend": "mysql"
   },
   "mysql": {
@@ -37,7 +37,7 @@ cat >> config/awsboxen.json << EOF
   },
   "secretKeyFile": "/home/app/fxa-auth-server/config/secret-key.json",
   "publicKeyFile": "/home/app/fxa-auth-server/config/public-key.json",
-  "bridge": {
+  "contentServer": {
     "url": "http://accounts.{"Ref":"DNSPrefix"}.lcip.org"
   }
 }

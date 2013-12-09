@@ -177,8 +177,7 @@ IdpServerLaunchConfig:
          /home/app/fxa-auth-server/config/cloud_formation.json:
            content:
              # Public-facing URL, as configured in the DNSRecord.
-             public_url: {"Fn::Join": ["", ["http://", {"Fn::Join": [".", ["api-accounts", {"Ref": "DNSPrefix"}, "lcip.org"]]}]]}
-             domain: {"Fn::Join": [".", ["api-accounts", {"Ref": "DNSPrefix"}, "lcip.org"]]}
+             publicUrl: {"Fn::Join": ["", ["http://", {"Fn::Join": [".", ["api-accounts", {"Ref": "DNSPrefix"}, "lcip.org"]]}]]}
              # Using the RDS MySQL instance for storage
              mysql:
                user: "fxa"
