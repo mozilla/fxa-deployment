@@ -180,10 +180,16 @@ IdpServerLaunchConfig:
              publicUrl: {"Fn::Join": ["", ["http://", {"Fn::Join": [".", ["api-accounts", {"Ref": "DNSPrefix"}, "lcip.org"]]}]]}
              # Using the RDS MySQL instance for storage
              mysql:
-               user: "fxa"
-               password: {"Ref": "DBPassword"}
-               database: "fxa"
-               host: {"Fn::Join": [".", ["db",{"Ref":"DNSPrefix"},"lcip.org"]]}
+               master:
+                 user: "fxa"
+                 password: {"Ref": "DBPassword"}
+                 database: "fxa"
+                 host: {"Fn::Join": [".", ["db",{"Ref":"DNSPrefix"},"lcip.org"]]}
+               slave:
+                 user: "fxa"
+                 password: {"Ref": "DBPassword"}
+                 database: "fxa"
+                 host: {"Fn::Join": [".", ["db",{"Ref":"DNSPrefix"},"lcip.org"]]}
              # Using the Redis instance for nonce  cache
              redis:
                host: {"Fn::Join": [".", ["redis",{"Ref":"DNSPrefix"},"lcip.org"]]}

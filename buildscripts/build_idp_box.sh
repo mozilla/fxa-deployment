@@ -28,7 +28,7 @@ cat >> config/awsboxen.json << EOF
     "backend": "mysql"
   },
   "mysql": {
-    "create_schema": true
+    "createSchema": true
   },
   "smtp": {
     "host": "localhost",
