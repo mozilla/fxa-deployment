@@ -251,9 +251,9 @@ ScryptAutoScaleGroup:
   Properties:
     AvailabilityZones: { "Fn::GetAZs": ""}
     LaunchConfigurationName: { "Ref": "ScryptServerLaunchConfig" }
-    DesiredCapacity: "3"
-    MinSize: "3"
-    MaxSize: "3"
+    DesiredCapacity: "5"
+    MinSize: "5"
+    MaxSize: "5"
     LoadBalancerNames:
       - {"Ref": "ScryptLoadBalancer"}
   UpdatePolicy:
