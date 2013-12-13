@@ -19,6 +19,19 @@ LoadsBroker:
     KeyName: { "Ref": "AWSBoxDeployKey" }
     SecurityGroups:
       - {"Ref": "LoadsClusterSecurityGroup"}
+    Tags:
+      - Key: "Name"
+        Value: "fxa-loadsbroker"
+      - Key: "Type"
+        Value: "loadsbroker"
+      - Key: "App"
+        Value: "fxa"
+      - Key: "Env"
+        Value: "dev"
+      - Key: "Owner"
+        Value: "rfkelly"
+      - Key: "Stack"
+        Value: {"Ref": "AWS::StackName"}
     # Insert the private IP address into the circus.ini file.
     # This ensures the broker gives out correct endpoint addresses.
     UserData: {"Fn::Base64": {"Fn::Join": ["", [
@@ -42,6 +55,25 @@ LoadsAgentAutoScaleGroup:
     MaxSize: "5"
     LoadBalancerNames:
       - {"Ref": "LoadsAgentLoadBalancer"}
+    Tags:
+      - Key: "Name"
+        Value: "fxa-loadsagent"
+        PropagateAtLaunch: true
+      - Key: "Type"
+        Value: "loadsagent"
+        PropagateAtLaunch: true
+      - Key: "App"
+        Value: "fxa"
+        PropagateAtLaunch: true
+      - Key: "Env"
+        Value: "dev"
+        PropagateAtLaunch: true
+      - Key: "Owner"
+        Value: "rfkelly"
+        PropagateAtLaunch: true
+      - Key: "Stack"
+        Value: {"Ref": "AWS::StackName"}
+        PropagateAtLaunch: true
   UpdatePolicy:
     AutoScalingRollingUpdate:
       MinInstancesInService: "1"

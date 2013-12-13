@@ -33,6 +33,19 @@ LogServer:
     BlockDeviceMappings:
       - DeviceName: "/dev/sdb"
         VirtualName: "ephemeral0"
+    Tags:
+      - Key: "Name"
+        Value: "fxa-logbox"
+      - Key: "Type"
+        Value: "logbox"
+      - Key: "App"
+        Value: "fxa"
+      - Key: "Env"
+        Value: "dev"
+      - Key: "Owner"
+        Value: "rfkelly"
+      - Key: "Stack"
+        Value: {"Ref": "AWS::StackName"}
     UserData: {"Fn::Base64": {"Fn::Join": ["", [
       "#!/bin/bash\n",
       "set -e -x\n",

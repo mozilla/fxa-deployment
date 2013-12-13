@@ -55,6 +55,19 @@ LogServer:
     BlockDeviceMappings:
       - DeviceName: "/dev/sdb"
         VirtualName: "ephemeral0"
+    Tags:
+      - Key: "Name"
+        Value: "fxa-logbox"
+      - Key: "Type"
+        Value: "logbox"
+      - Key: "App"
+        Value: "fxa"
+      - Key: "Env"
+        Value: "dev"
+      - Key: "Owner"
+        Value: "rfkelly"
+      - Key: "Stack"
+        Value: {"Ref": "AWS::StackName"}
     UserData: {"Fn::Base64": {"Fn::Join": ["", [
       "#!/bin/bash\n",
       "set -e -x\n",
@@ -141,6 +154,25 @@ IdpAutoScaleGroup:
     MaxSize: "10"
     LoadBalancerNames:
       - {"Ref": "IdpLoadBalancer"}
+    Tags:
+      - Key: "Name"
+        Value: "fxa-webhead"
+        PropagateAtLaunch: true
+      - Key: "Type"
+        Value: "webhead"
+        PropagateAtLaunch: true
+      - Key: "App"
+        Value: "fxa"
+        PropagateAtLaunch: true
+      - Key: "Env"
+        Value: "dev"
+        PropagateAtLaunch: true
+      - Key: "Owner"
+        Value: "rfkelly"
+        PropagateAtLaunch: true
+      - Key: "Stack"
+        Value: {"Ref": "AWS::StackName"}
+        PropagateAtLaunch: true
   DependsOn:
     - RedisServer
     - Database
@@ -256,6 +288,25 @@ ScryptAutoScaleGroup:
     MaxSize: "5"
     LoadBalancerNames:
       - {"Ref": "ScryptLoadBalancer"}
+    Tags:
+      - Key: "Name"
+        Value: "fxa-scrypthelper"
+        PropagateAtLaunch: true
+      - Key: "Type"
+        Value: "scrypthelper"
+        PropagateAtLaunch: true
+      - Key: "App"
+        Value: "fxa"
+        PropagateAtLaunch: true
+      - Key: "Env"
+        Value: "dev"
+        PropagateAtLaunch: true
+      - Key: "Owner"
+        Value: "rfkelly"
+        PropagateAtLaunch: true
+      - Key: "Stack"
+        Value: {"Ref": "AWS::StackName"}
+        PropagateAtLaunch: true
   UpdatePolicy:
     AutoScalingRollingUpdate:
       MinInstancesInService: "1"
@@ -325,6 +376,19 @@ RedisServer:
     SecurityGroups:
       - {"Ref": "RedisServerSecurityGroup"}
       - {"Ref": "HekaClientSecurityGroup"}
+    Tags:
+      - Key: "Name"
+        Value: "fxa-redis"
+      - Key: "Type"
+        Value: "redis"
+      - Key: "App"
+        Value: "fxa"
+      - Key: "Env"
+        Value: "dev"
+      - Key: "Owner"
+        Value: "rfkelly"
+      - Key: "Stack"
+        Value: {"Ref": "AWS::StackName"}
     UserData: {"Fn::Base64": {"Fn::Join": ["", [
       "#!/bin/bash\n",
       "set -e -x\n",
