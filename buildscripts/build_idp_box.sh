@@ -105,7 +105,7 @@ EOF
 
 # Create placeholder for the SES relay credentials.
 cat >> /etc/postfix/sasl_passwd << EOF
-email-smtp.us-east-1.amazonaws.com:25 {"Ref":"SMTPUsername"}:{"Ref":"SMTPPassword"}
+{"Ref":"SMTPRelay"} {"Ref":"SMTPUsername"}:{"Ref":"SMTPPassword"}
 EOF
 /usr/sbin/postmap /etc/postfix/sasl_passwd
 

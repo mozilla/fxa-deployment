@@ -7,7 +7,7 @@ DBPassword:
   Type: "String"
   Description: "password for connecting to mysql database"
 SMTPRelay:
-  Default: ""
+  Default: "email-smtp.us-east-1.amazonaws.com:587"
   Type: "String"
   Description: "smtp relay host to use for sending email"
 SMTPUsername:
