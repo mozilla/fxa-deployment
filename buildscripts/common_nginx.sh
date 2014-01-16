@@ -8,10 +8,30 @@
 set -e
 
 # Setup nginx as proxy for local webserver process.
+# It listens on http and https with a self-signed key.
 
 YUM="yum --assumeyes --enablerepo=epel"
 
 $YUM install nginx
+
+cat << EOF > /etc/nginx/request.cnf
+[ req ]
+default_bits           = 2048
+default_keyfile        = key.pem
+distinguished_name     = AWSBOX deployment
+prompt                 = no
+
+[ AWSBOX deployment ]
+C                      = US
+ST                     = Test State or Province
+L                      = Test Locality
+O                      = Organization Name
+OU                     = Organizational Unit Name
+CN                     = awsbox.tld
+emailAddress           = test@email.address
+EOF
+openssl genrsa -out /etc/nginx/key.pem 2048
+openssl req -new -config /etc/nginx/request.cnf -x509 -key /etc/nginx/key.pem -out /etc/nginx/cert.pem -days 1095
 
 cat << EOF > /etc/nginx/nginx.conf
 user  nginx;
@@ -29,6 +49,17 @@ http {
     access_log /var/log/nginx/access.log xff;
     server {
         listen       80 default;
+        include /etc/nginx/server-common.inc;
+    }
+    server {
+        listen       443 ssl;
+        ssl_certificate /etc/nginx/cert.pem;
+        ssl_certificate_key /etc/nginx/key.pem;
+        include /etc/nginx/server-common.inc;
+    }
+}
+EOF
+cat << EOF > /etc/nginx/server-common.inc
         location / {
             if (\$request_method = 'OPTIONS') {
                 add_header 'Access-Control-Allow-Origin' '*';
@@ -50,8 +81,6 @@ http {
             proxy_redirect off;
             proxy_pass http://localhost:8000;
         }
-    }
-}
 EOF
 
 /sbin/chkconfig nginx on

@@ -17,6 +17,21 @@ DNSRecords:
         TTL: "30"
         ResourceRecords:
           - {"Fn::GetAtt": ["LogServer", "PublicDnsName"]}
+      - Name: {"Fn::Join": [".", ["token", {"Ref": "DNSPrefix"}, "lcip.org."]]}
+        Type: CNAME
+        TTL: "30"
+        ResourceRecords:
+          - {"Fn::GetAtt": ["TokenServer", "PublicDnsName"]}
+      - Name: {"Fn::Join": [".", ["sync1", {"Ref": "DNSPrefix"}, "lcip.org."]]}
+        Type: CNAME
+        TTL: "30"
+        ResourceRecords:
+          - {"Fn::GetAtt": ["SyncServer1", "PublicDnsName"]}
+      - Name: {"Fn::Join": [".", ["sync2", {"Ref": "DNSPrefix"}, "lcip.org."]]}
+        Type: CNAME
+        TTL: "30"
+        ResourceRecords:
+          - {"Fn::GetAtt": ["SyncServer2", "PublicDnsName"]}
 
 
 # The log-collecting server, and associated infra.
@@ -93,3 +108,139 @@ LogServerSecurityGroup:
         FromPort: "5672"
         ToPort: "5672"
         SourceSecurityGroupName: "awsbox group v1"
+
+
+# A single stand-along EC2 instance for the tokenserver.
+
+TokenServer:
+  Type: AWS::EC2::Instance
+  Properties:
+    InstanceType: m1.small
+    ImageId: {"Ref": "TokenServerBoxAMI"}
+    KeyName: {"Ref": "AWSBoxDeployKey"}
+    SecurityGroups:
+      - {"Ref": "TokenSecurityGroup"}
+    Tags:
+      - Key: "Name"
+        Value: "fxa-tokenserver"
+      - Key: "Type"
+        Value: "tokenserver"
+      - Key: "App"
+        Value: "fxa"
+      - Key: "Env"
+        Value: "dev"
+      - Key: "Owner"
+        Value: "rfkelly"
+      - Key: "Stack"
+        Value: {"Ref": "AWS::StackName"}
+    UserData: {"Fn::Base64": {"Fn::Join": ["", [
+      "#!/bin/bash\n",
+      "set -e -x\n",
+      # Execute local startup after cloudinit has run.
+      "mv /etc/rc.local.post-cloudinit /etc/rc.local\n",
+      "exec /etc/rc.local\n",
+       ]]}}
+
+TokenSecurityGroup:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+    GroupDescription:  awsboxen security group for picl-oldsync tokenserver
+    SecurityGroupIngress:
+      # Allow ssh from anywhere
+      - IpProtocol: "tcp"
+        FromPort: "22"
+        ToPort: "22"
+        CidrIp: "0.0.0.0/0"
+      # Allow http access from anywhere
+      - IpProtocol: "tcp"
+        FromPort: "80"
+        ToPort: "80"
+        CidrIp: "0.0.0.0/0"
+      - IpProtocol: "tcp"
+        FromPort: "443"
+        ToPort: "443"
+        CidrIp: "0.0.0.0/0"
+
+
+# Two stand-alone EC2 instances to be storage nodes.
+
+SyncServer1:
+  Type: AWS::EC2::Instance
+  Properties:
+    InstanceType: m1.small
+    ImageId: {"Ref": "SyncStorageBoxAMI"}
+    KeyName: {"Ref": "AWSBoxDeployKey"}
+    SecurityGroups:
+      - {"Ref": "StorageSecurityGroup"}
+    Tags:
+      - Key: "Name"
+        Value: "fxa-syncstorage"
+      - Key: "Type"
+        Value: "syncstorage"
+      - Key: "App"
+        Value: "fxa"
+      - Key: "Env"
+        Value: "dev"
+      - Key: "Owner"
+        Value: "rfkelly"
+      - Key: "Stack"
+        Value: {"Ref": "AWS::StackName"}
+    UserData: {"Fn::Base64": {"Fn::Join": ["", [
+      "#!/bin/bash\n",
+      "set -e -x\n",
+      # Execute local startup after cloudinit has run.
+      "mv /etc/rc.local.post-cloudinit /etc/rc.local\n",
+      "exec /etc/rc.local\n",
+       ]]}}
+
+SyncServer2:
+  Type: AWS::EC2::Instance
+  Properties:
+    InstanceType: m1.small
+    ImageId: {"Ref": "SyncStorageBoxAMI"}
+    KeyName: {"Ref": "AWSBoxDeployKey"}
+    SecurityGroups:
+      - {"Ref": "StorageSecurityGroup"}
+    Tags:
+      - Key: "Name"
+        Value: "fxa-syncstorage"
+      - Key: "Type"
+        Value: "syncstorage"
+      - Key: "App"
+        Value: "fxa"
+      - Key: "Env"
+        Value: "dev"
+      - Key: "Owner"
+        Value: "rfkelly"
+      - Key: "Stack"
+        Value: {"Ref": "AWS::StackName"}
+    UserData: {"Fn::Base64": {"Fn::Join": ["", [
+      "#!/bin/bash\n",
+      "set -e -x\n",
+      # Change the token-signing secret used by this box.
+      "perl -pi -e 's/SECRETKEYOHSECRETKEY/SECRETLYMYSECRETKEY/g' /home/app/server-syncstorage/production.ini\n",
+      # Execute local startup after cloudinit has run.
+      "mv /etc/rc.local.post-cloudinit /etc/rc.local\n",
+      "exec /etc/rc.local\n",
+       ]]}}
+
+
+StorageSecurityGroup:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+    GroupDescription:  awsboxen security group for picl-oldsync storage
+    SecurityGroupIngress:
+      # Allow ssh from anywhere
+      - IpProtocol: "tcp"
+        FromPort: "22"
+        ToPort: "22"
+        CidrIp: "0.0.0.0/0"
+      # Allow http access from anywhere
+      - IpProtocol: "tcp"
+        FromPort: "80"
+        ToPort: "80"
+        CidrIp: "0.0.0.0/0"
+      - IpProtocol: "tcp"
+        FromPort: "443"
+        ToPort: "443"
+        CidrIp: "0.0.0.0/0"
