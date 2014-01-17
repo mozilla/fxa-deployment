@@ -131,8 +131,8 @@ echo "INSERT INTO token.services VALUES (1, 'sync-1.5', '{node}/1.5/{uid}');" | 
 # Add db records for the known nodes in this cluster.
 # Ideally they would register themselves into the db at bootup.
 
-echo "INSERT INTO token.nodes VALUES (1, 'sync-1.5', 'https://sync1.{"Ref":"DNSPrefix"}.lcip.org', 10000, 0, 10000, 0, 0);" | mysql -u root
-echo "INSERT INTO token.nodes VALUES (2, 'sync-1.5', 'https://sync2.{"Ref":"DNSPrefix"}.lcip.org', 10000, 0, 10000, 0, 0);" | mysql -u root
+echo "INSERT INTO token.nodes VALUES (1, 1, 'https://sync1.{"Ref":"DNSPrefix"}.lcip.org', 10000, 0, 10000, 0, 0);" | mysql -u root
+echo "INSERT INTO token.nodes VALUES (2, 1, 'https://sync2.{"Ref":"DNSPrefix"}.lcip.org', 10000, 0, 10000, 0, 0);" | mysql -u root
 
 
 # Write a circus config file to run the app with gunicorn
