@@ -77,6 +77,7 @@ cat << EOF > /etc/nginx/server-common.inc
             add_header 'Access-Control-Max-Age' 1728000;
             add_header 'Access-Control-Allow-Headers' 'DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type';
             proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto \$scheme;
             proxy_set_header Host \$http_host;
             proxy_redirect off;
             proxy_pass http://localhost:8000;
