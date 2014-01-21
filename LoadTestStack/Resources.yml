@@ -4,7 +4,6 @@
 #
 #    logs.<prefix>.lcip.org:     log collection server
 #    api-accounts.<prefix>.lcip.org:      loadbalancer fronting webheads
-#    scrypt-accounts.<prefix>.lcip.org:   loadbalancer fronting scrypt nodes
 #    db.<prefix>.lcip.org:       public alias for the MySQL database
 #    redis.<prefix>.lcip.org:    public alias for the Redis database
 
@@ -28,11 +27,6 @@ DNSRecords:
         TTL: "30"
         ResourceRecords:
           - {"Fn::GetAtt": ["Database", "Endpoint.Address"]}
-      - Name: {"Fn::Join": [".", ["scrypt-accounts", {"Ref":"DNSPrefix"}, "lcip.org."]]}
-        Type: CNAME
-        TTL: "30"
-        ResourceRecords:
-          - {"Fn::GetAtt": ["ScryptLoadBalancer", "DNSName"]}
       - Name: {"Fn::Join": [".", ["redis", {"Ref": "DNSPrefix"}, "lcip.org."]]}
         Type: CNAME
         TTL: "30"
@@ -257,108 +251,6 @@ IdpSecurityGroupIngressForLoadBalancer:
     ToPort: "80"
     SourceSecurityGroupOwnerId: {"Fn::GetAtt": ["IdpLoadBalancer", "SourceSecurityGroup.OwnerAlias"]}
     SourceSecurityGroupName: {"Fn::GetAtt": ["IdpLoadBalancer", "SourceSecurityGroup.GroupName"]}
-
-
-# The scrypt-helper webheads, and associated infra.
-# These machines are stateless, so we run an auto-scaling group of them
-
-ScryptLoadBalancer:
-  Type: AWS::ElasticLoadBalancing::LoadBalancer
-  Properties:
-    AvailabilityZones: {"Fn::GetAZs": ""}
-    Listeners:
-      - LoadBalancerPort: "80"
-        InstancePort: "80"
-        Protocol: "HTTP"
-    HealthCheck:
-      Target: "TCP:80"
-      HealthyThreshold: "2"
-      UnhealthyThreshold: "2"
-      Interval: "10"
-      Timeout: "5"
-
-
-ScryptAutoScaleGroup:
-  Type: AWS::AutoScaling::AutoScalingGroup
-  Properties:
-    AvailabilityZones: { "Fn::GetAZs": ""}
-    LaunchConfigurationName: { "Ref": "ScryptServerLaunchConfig" }
-    DesiredCapacity: "5"
-    MinSize: "5"
-    MaxSize: "5"
-    LoadBalancerNames:
-      - {"Ref": "ScryptLoadBalancer"}
-    Tags:
-      - Key: "Name"
-        Value: "fxa-scrypthelper"
-        PropagateAtLaunch: true
-      - Key: "Type"
-        Value: "scrypthelper"
-        PropagateAtLaunch: true
-      - Key: "App"
-        Value: "fxa"
-        PropagateAtLaunch: true
-      - Key: "Env"
-        Value: "dev"
-        PropagateAtLaunch: true
-      - Key: "Owner"
-        Value: "rfkelly"
-        PropagateAtLaunch: true
-      - Key: "Stack"
-        Value: {"Ref": "AWS::StackName"}
-        PropagateAtLaunch: true
-  UpdatePolicy:
-    AutoScalingRollingUpdate:
-      MinInstancesInService: "1"
-      MaxBatchSize: "1"
-
-
-ScryptServerLaunchConfig:
-  Type: AWS::AutoScaling::LaunchConfiguration
-  Properties:
-    InstanceType: m1.large
-    ImageId: { "Ref": "ScryptBoxAMI" }
-    KeyName: { "Ref": "AWSBoxDeployKey" }
-    SecurityGroups:
-      - {"Ref": "ScryptServerSecurityGroup"}
-      - {"Ref": "HekaClientSecurityGroup"}
-    UserData: {"Fn::Base64": {"Fn::Join": ["", [
-      "#!/bin/bash\n",
-      "set -e -x\n",
-      "mv /etc/rc.local.post-cloudinit /etc/rc.local\n",
-      "exec /etc/rc.local\n",
-       ]]}}
-
-
-ScryptServerSecurityGroup:
-  Type: AWS::EC2::SecurityGroup
-  Properties:
-    GroupDescription: "awsboxen security group for scrypt-helper webheads"
-    SecurityGroupIngress:
-      # Allow ssh from anywhere.
-      - IpProtocol: "tcp"
-        FromPort: "22"
-        ToPort: "22"
-        CidrIp: "0.0.0.0/0"
-      # Allow access to heka web dashboard.
-      - IpProtocol: "tcp"
-        FromPort: "4352"
-        ToPort: "4352"
-        CidrIp: "0.0.0.0/0"
-
-
-ScryptSecurityGroupIngressForLoadBalancer:
-  # Allow port 80 ingress from the load balancer.
-  # This has to be a separate resource to avoid circular references.
-  Type: AWS::EC2::SecurityGroupIngress
-  Properties:
-    GroupName: {"Ref": "ScryptServerSecurityGroup"}
-    IpProtocol: "tcp"
-    FromPort: "80"
-    ToPort: "80"
-    SourceSecurityGroupOwnerId: {"Fn::GetAtt": ["ScryptLoadBalancer", "SourceSecurityGroup.OwnerAlias"]}
-    SourceSecurityGroupName: {"Fn::GetAtt": ["ScryptLoadBalancer", "SourceSecurityGroup.GroupName"]}
-
 
 
 # A redis instance for storing nonces.
