@@ -13,8 +13,6 @@ sudo python-pip install virtualenv
 cd /home/app
 $UDO git clone https://github.com/mozilla-services/loads/
 cd ./loads
-$UDO make build || true
-$UDO ./bin/pip install "psutil<1.1"
 $UDO make build
 cd ../
 

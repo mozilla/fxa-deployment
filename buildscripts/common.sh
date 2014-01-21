@@ -43,7 +43,6 @@ EOF
 # Note that we depend on cloudinit to move /etc/rc.local.post-cloudinit
 # to /etc/rc.local after it has done whatever extra setup is required.
 
-python-pip install "psutil < 1.1"  # v1.1 doesn't build for some reason
 python-pip install circus
 
 cd /home/app
