@@ -105,6 +105,7 @@ token_duration = 300
 [browserid]
 backend = tokenserver.verifiers.RemoteVerifier
 audiences = https://token.{"Ref":"DNSPrefix"}.lcip.org
+verifier_url = https://verifier.accounts.firefox.com/v2
 
 EOF
 chown app:app ./etc/production.ini
