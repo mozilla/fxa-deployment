@@ -30,7 +30,6 @@ python-pip install virtualenv
 cd /home/app
 $UDO git clone https://github.com/mozilla-services/server-syncstorage
 cd server-syncstorage
-git checkout -t origin/rfk/sync-1.5
 make build
 ./local/bin/pip install gunicorn gevent
 
