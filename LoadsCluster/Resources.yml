@@ -50,9 +50,9 @@ LoadsAgentAutoScaleGroup:
   Properties:
     AvailabilityZones: { "Fn::GetAZs": ""}
     LaunchConfigurationName: { "Ref": "LoadsAgentLaunchConfig" }
-    DesiredCapacity: "5"
-    MinSize: "5"
-    MaxSize: "5"
+    DesiredCapacity: "10"
+    MinSize: "10"
+    MaxSize: "10"
     LoadBalancerNames:
       - {"Ref": "LoadsAgentLoadBalancer"}
     Tags:
