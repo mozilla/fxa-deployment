@@ -1,4 +1,10 @@
 
+-------------------------------------------------------------------------------
+NOTE: this repository is on longer in active use.
+FxA deployment details are now part of the mozilla-services puppet-config repo.
+-------------------------------------------------------------------------------
+
+
 AWSBoxen Deployment Scripting for PiCL Loadtest Environment
 ===========================================================
 
